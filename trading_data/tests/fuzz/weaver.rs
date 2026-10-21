@@ -160,7 +160,10 @@ fn tie_oracle(steps: &[StepView]) -> Result<(), String> {
 /// both feeds must agree on, and the one the anchors deliberately stay out of (a run of checkpoints
 /// inside one cell is delivered as its last, so anchors are not an exactly-once lane; the folded
 /// book is what stands for them).
-fn flat(steps: &[StepView]) -> (Vec<(u64, i32, u32)>, Vec<(u64, i32, u32, bool)>, usize, usize) {
+type Trades = Vec<(u64, i32, u32)>;
+type Deltas = Vec<(u64, i32, u32, bool)>;
+
+fn flat(steps: &[StepView]) -> (Trades, Deltas, usize, usize) {
 	let mut t = Vec::new();
 	let mut d = Vec::new();
 	let (mut oi, mut mc) = (0, 0);

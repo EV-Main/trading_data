@@ -44,6 +44,7 @@ len_zero = "allow"                  # `.empty()` is O(1) but on &str only
 undocumented_unsafe_blocks = "warn"
 tabs_in_doc_comments = "allow"
 doc_lazy_continuation = "allow"     # tries to make me add a newline after a list in docs
+redundant_field_names = "allow"     # `derive_new::new` expands to `Self { f: f }` under the field's own span
 
 # Questionable
 # const fns, so actually more performant

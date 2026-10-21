@@ -118,7 +118,7 @@ impl Tape {
 		self.wakes += 1;
 		// re-folding rows the checkpoint already holds is free — a level is absolute in `(side, price)`
 		// and the later row wins — so the seek resume simply takes the whole tape.
-		match (self.seek.then(|| self.anchor.as_ref()).flatten(), b.seq()) {
+		match (self.seek.then_some(self.anchor.as_ref()).flatten(), b.seq()) {
 			(Some(a), _) => b.rewind(Some(a), &self.deltas),
 			(None, Some(s)) => {
 				let k = self.deltas.partition_point(|d| d.monotonic_seq <= s);

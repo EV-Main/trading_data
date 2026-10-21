@@ -723,6 +723,39 @@ impl Live {
 	}
 }
 
+/// Draining to `None` is one way a session ends; every other one — an early break, a `?`, a panic
+/// upstream — goes through here, and without it the un-rotated tail of each lane is on the floor.
+/// A no-op after the drained path, since a `Feather` holding no rows writes nothing.
+impl Drop for Live {
+	fn drop(&mut self) {
+		self.final_flush();
+	}
+}
+
+impl Feed for Live {
+	fn next(&mut self) -> Option<Lanes<'_>> {
+		self.tx = None; // drop our own sender so the channel disconnects once external sinks are gone
+		self.weaver.compact(); // reclaim the previous step's consumed rows (its borrow has ended)
+
+		// Top up until there's something to weave. Everything ingested is a complete prefix (future
+		// stamps are larger), so the whole current buffer is safe to emit — no watermark needed.
+		while self.weaver.is_empty() {
+			if self.disconnected {
+				self.final_flush();
+				return None;
+			}
+			match self.rx.recv() {
+				Ok(e) => self.ingest(e),
+				Err(_) => self.disconnected = true,
+			}
+			while let Ok(e) = self.rx.try_recv() {
+				self.ingest(e);
+			}
+		}
+		self.weaver.next()
+	}
+}
+
 #[cfg(test)]
 mod tests {
 	use trading_data_core::{FrameKind, Precision, Side};
@@ -769,38 +802,5 @@ mod tests {
 			assert_eq!(s.past.anchors.len(), anchors, "step {n}");
 		}
 		assert!(w.step().is_none(), "the weave is drained");
-	}
-}
-
-/// Draining to `None` is one way a session ends; every other one — an early break, a `?`, a panic
-/// upstream — goes through here, and without it the un-rotated tail of each lane is on the floor.
-/// A no-op after the drained path, since a `Feather` holding no rows writes nothing.
-impl Drop for Live {
-	fn drop(&mut self) {
-		self.final_flush();
-	}
-}
-
-impl Feed for Live {
-	fn next(&mut self) -> Option<Lanes<'_>> {
-		self.tx = None; // drop our own sender so the channel disconnects once external sinks are gone
-		self.weaver.compact(); // reclaim the previous step's consumed rows (its borrow has ended)
-
-		// Top up until there's something to weave. Everything ingested is a complete prefix (future
-		// stamps are larger), so the whole current buffer is safe to emit — no watermark needed.
-		while self.weaver.is_empty() {
-			if self.disconnected {
-				self.final_flush();
-				return None;
-			}
-			match self.rx.recv() {
-				Ok(e) => self.ingest(e),
-				Err(_) => self.disconnected = true,
-			}
-			while let Ok(e) = self.rx.try_recv() {
-				self.ingest(e);
-			}
-		}
-		self.weaver.next()
 	}
 }

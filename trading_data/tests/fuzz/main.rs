@@ -15,11 +15,12 @@
 /// An oracle violation, as the value a target returns rather than a panic — a panic is reserved for
 /// production code blowing up under the trace, and the two want telling apart in the report.
 macro_rules! check {
-	($cond:expr, $($arg:tt)*) => {
-		if !$cond {
+	($cond:expr, $($arg:tt)*) => {{
+		let held: bool = $cond; // negated whole, so a NaN operand fails the check rather than passing it
+		if !held {
 			return Err(format!($($arg)*));
 		}
-	};
+	}};
 }
 
 #[cfg(feature = "bench")]
@@ -101,7 +102,7 @@ fn fuzz() {
 	// whoever asked for it, and that hook exists to swallow exactly such messages.
 	if let Ok(out) = std::env::var("FUZZ_FILM") {
 		#[cfg(not(feature = "bench"))]
-		panic!("FUZZ_FILM draws the `Census`, which is the facade's `bench` tier: `cargo t -p trading_data --features bench --test fuzz`");
+		panic!("FUZZ_FILM={out} draws the `Census`, which is the facade's `bench` tier: `cargo t -p trading_data --features bench --test fuzz`");
 		#[cfg(feature = "bench")]
 		{
 			film::film(std::path::Path::new(&out));

@@ -613,7 +613,7 @@ pub trait Slots: Copy {
 	/// filled owes an absence channel for.
 	const MAYBE: bool = false;
 	/// So a kernel holding an opaque `impl Slots` can check its width against the item it fills.
-	fn len(&self) -> usize {
+	fn width(&self) -> usize {
 		Self::LEN
 	}
 

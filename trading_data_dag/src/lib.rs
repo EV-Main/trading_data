@@ -2322,8 +2322,9 @@ impl PerElem {
 }
 
 /// The slot count a [`Scans`] body fills, checked once against the buffer that holds it.
-const fn scan_slots<E: Scans>() -> usize
+const fn scan_slots<E>() -> usize
 where
+	E: Scans,
 	for<'x> E: Cell<Out<'x> = &'x [<E as Series>::Item]>,
 	E::Item: Flat, {
 	assert!(<E::Item as Flat>::LEN <= MAX_SLOTS, "a Scans item outgrew MAX_SLOTS: raise it in trading_data_dag");
@@ -2343,7 +2344,7 @@ impl Scan {
 		E::Deps: DepFlat, {
 		let slots_w = const { scan_slots::<E>() };
 		let body = e.body(Vars);
-		debug_assert_eq!(body.len(), slots_w, "a Scans body states one expression per slot of its item");
+		debug_assert_eq!(body.width(), slots_w, "a Scans body states one expression per slot of its item");
 		// r[impl outs.absence.typed]
 		debug_assert!(
 			!body.maybe() || <E::Item as Flat>::ABSENTABLE,
@@ -2402,7 +2403,7 @@ where
 		let stride = env.filled().len();
 		let body = e.body(Vars);
 		let mut grad = [0.0f64; MAX_SLOTS * MAX_VARS];
-		body.grad_slots(env.filled(), &mut grad[..body.len() * stride]);
+		body.grad_slots(env.filled(), &mut grad[..body.width() * stride]);
 		Some(PerElem {
 			formulas: body.lower_slots(),
 			grad,
@@ -2500,8 +2501,9 @@ impl sealed::Kernel for Close {}
 /// The deps' own width — where the accumulator starts — and the item's slot count, which is how wide
 /// the accumulator is. [`fold_widths`]'s shape, because the two kernels lay their env out the same
 /// way.
-const fn close_widths<E: Closes>() -> (usize, usize)
+const fn close_widths<E>() -> (usize, usize)
 where
+	E: Closes,
 	for<'x> E: Cell<Out<'x> = &'x [<E as Series>::Item]>,
 	E::Deps: DepFlat,
 	E::Item: Flat, {
@@ -2530,8 +2532,8 @@ impl Close {
 			let mut env = Env::<Blindfold>::new(&mut buf, base_w, slots_w);
 			let reads = <E::Deps as DepSet>::reads(&deps);
 			let (open, fold) = (e.open(Vars), e.fold(Vars));
-			debug_assert_eq!(open.len(), slots_w, "a Closes body states one expression per slot of its item");
-			debug_assert_eq!(fold.len(), slots_w, "a Closes body states one expression per slot of its item");
+			debug_assert_eq!(open.width(), slots_w, "a Closes body states one expression per slot of its item");
+			debug_assert_eq!(fold.width(), slots_w, "a Closes body states one expression per slot of its item");
 			// r[impl outs.absence.typed]
 			debug_assert!(
 				!(open.maybe() || fold.maybe()) || <E::Item as Flat>::ABSENTABLE,
@@ -2721,8 +2723,9 @@ pub struct Fold;
 impl sealed::Kernel for Fold {}
 
 /// The deps' own width — where the state starts — how wide the state is, and the item's slot count.
-const fn fold_widths<E: Folds>() -> (usize, usize, usize)
+const fn fold_widths<E>() -> (usize, usize, usize)
 where
+	E: Folds,
 	for<'x> E: Cell<Out<'x> = &'x [<E as Series>::Item]>,
 	E::Deps: DepFlat,
 	E::Item: Flat, {
@@ -2750,8 +2753,8 @@ impl Fold {
 			let mut env = Env::<Blindfold>::new(&mut buf, base, carry);
 			let reads = <E::Deps as DepSet>::reads(&deps);
 			let (step, value) = (e.step(Vars), e.value(Vars));
-			debug_assert_eq!(step.len(), carry, "a Folds `step` states one expression per state slot");
-			debug_assert_eq!(value.len(), slots_w, "a Folds `value` states one expression per slot of its item");
+			debug_assert_eq!(step.width(), carry, "a Folds `step` states one expression per state slot");
+			debug_assert_eq!(value.width(), slots_w, "a Folds `value` states one expression per slot of its item");
 			// r[impl outs.absence.typed]
 			// the state has no absence channel at all — a `Carried` slot is a bare `f64`, and a
 			// declination reaching one poisons every element after it.
@@ -4562,6 +4565,7 @@ where
 /// kernel is the one thing the observed sweep never has to know: `plots` is the only thing it would
 /// have read off either, and both declare it identically.
 #[cfg_attr(feature = "profile", inline(always))]
+#[allow(clippy::too_many_arguments)]
 fn step_seen<'t, N, K, F, I, O: Observer>(
 	frame: F,
 	host: &'t mut K::Host,

@@ -55,9 +55,9 @@ fn symbolic_derivative_matches_grad_on_random_envs() {
 		let env = [2.0 + rng() * 5.0, rng() * 6.0 - 3.0];
 		let mut g = [0.0; 2];
 		e.grad(&env, 1.0, &mut g);
-		for i in 0..2 {
+		for (i, g) in g.iter().enumerate() {
 			let d = ast.diff(i).simplify();
-			assert!((d.eval(&env) - g[i]).abs() < 1e-9, "∂{i} {d} at {env:?}: {} vs {}", d.eval(&env), g[i]);
+			assert!((d.eval(&env) - g).abs() < 1e-9, "∂{i} {d} at {env:?}: {} vs {g}", d.eval(&env));
 		}
 	}
 }
@@ -217,8 +217,8 @@ fn min_and_max_skip_an_absence() {
 	skips!("min, absent right": min(v.get::<0>(), v.get::<1>()), at [2.0, f64::NAN] => 2.0, seed_on 0);
 
 	// and the type agrees with the values: absent only where both operands are
-	assert!(!<trading_data_expr::Max<trading_data_expr::Absent, trading_data_expr::Const> as Expr>::MAYBE);
-	assert!(<trading_data_expr::Max<trading_data_expr::Absent, trading_data_expr::Absent> as Expr>::MAYBE);
+	const { assert!(!<trading_data_expr::Max<trading_data_expr::Absent, trading_data_expr::Const> as Expr>::MAYBE) };
+	const { assert!(<trading_data_expr::Max<trading_data_expr::Absent, trading_data_expr::Absent> as Expr>::MAYBE) };
 	assert!(max(absent(), constant(2.0)).0.eval(&[]) == 2.0);
 }
 
@@ -264,8 +264,8 @@ fn min_and_max_break_ties_the_same_way_in_both_readings() {
 		};
 		// the tie goes right, so the whole seed lands on x1 and none on x0
 		assert_eq!(g, [0.0, 1.0], "build {build}");
-		for i in 0..2 {
-			assert_eq!(ast.diff(i).simplify().eval(&env), g[i], "build {build} ∂{i}");
+		for (i, g) in g.iter().enumerate() {
+			assert_eq!(ast.diff(i).simplify().eval(&env), *g, "build {build} ∂{i}");
 		}
 	}
 }

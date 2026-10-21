@@ -50,7 +50,9 @@ fn run(seed: u64, n: usize) -> Vec<BookDelta> {
 		.collect()
 }
 
-fn levels(b: &Book) -> (Vec<(i32, u32)>, Vec<(i32, u32)>) {
+type Ladder = Vec<(i32, u32)>;
+
+fn levels(b: &Book) -> (Ladder, Ladder) {
 	(b.bids().to_vec(), b.asks().to_vec())
 }
 
