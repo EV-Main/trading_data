@@ -10,7 +10,7 @@ use std::{
 	time::Instant,
 };
 
-use exec_viz::{Backpressure, Tape, Viz};
+use exec_viz::{Backpressure, Tape};
 use trading_data::{Cell, Exact, ExchangeName, Feed as _, Fire, LatencyConfig, Observer, ReadClock, Replay, Want, required_lanes};
 use trading_data_spl::{config::Config, day_bounds, ensure_lanes, nodes::Graph, symbol, trading_days};
 use v_utils::*;
@@ -79,6 +79,7 @@ async fn main() {
 		}
 		let elapsed = began.elapsed().as_secs_f64();
 		recorder.seal();
+		drop(tape); // the tape absorbs what the recorder hands off, so it lives through the whole walk
 		elapsed
 	};
 	let obs_s = tape(Backpressure::Block);

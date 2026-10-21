@@ -380,7 +380,7 @@ fn a_const_argument_keys_the_same_braced_or_bare() {
 	assert_eq!((*o.braced, *o.bare), (6.0, 6.0));
 }
 
-/// The same node library asked for one output, and a root nothing reaches.
+// The same node library asked for one output, and a root nothing reaches.
 graph! {
 	struct SmallG;
 	batches SBatches;
