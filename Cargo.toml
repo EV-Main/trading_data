@@ -32,7 +32,7 @@ version = "0.5.1"
 edition = "2024"
 authors = ["Valeriy Sakharov <valeratrades@gmail.com>"]
 license = "BlueOak-1.0.0"
-repository = "https://github.com/EV-invest/trading_data"
+repository = "https://github.com/EV-Main/trading_data"
 readme = "README.md"
 keywords = ["trading", "finance", "market-data"]
 categories = ["command-line-utilities"]
@@ -53,6 +53,9 @@ manual_is_multiple_of = "allow"
 
 [workspace.lints.rust]
 unused_features = "allow"
+
+[workspace.lints.cargo]
+non_kebab_case_bins = "allow"
 
 [workspace.dependencies]
 # The `version` is what a published manifest carries once cargo strips the `path`; without it the

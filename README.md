@@ -4,8 +4,8 @@
 [<img alt="docs.rs" src="https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&labelColor=555555&logo=docs.rs&style=flat-square" height="20">](https://docs.rs/trading_data)
 ![Lines Of Code](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/valeratrades/b48e6f02c61942200e7d1e3eeabf9bcb/raw/trading_data-loc.json)
 <br>
-[<img alt="ci errors" src="https://img.shields.io/github/actions/workflow/status/EV-invest/trading_data/errors.yml?branch=main&style=for-the-badge&style=flat-square&label=errors&labelColor=420d09" height="20">](https://github.com/EV-invest/trading_data/actions?query=branch%3Amain) <!--NB: Won't find it if repo is private-->
-[<img alt="ci warnings" src="https://img.shields.io/github/actions/workflow/status/EV-invest/trading_data/warnings.yml?branch=main&style=for-the-badge&style=flat-square&label=warnings&labelColor=d16002" height="20">](https://github.com/EV-invest/trading_data/actions?query=branch%3Amain) <!--NB: Won't find it if repo is private-->
+[<img alt="ci errors" src="https://img.shields.io/github/actions/workflow/status/EV-Main/trading_data/errors.yml?branch=main&style=for-the-badge&style=flat-square&label=errors&labelColor=420d09" height="20">](https://github.com/EV-Main/trading_data/actions?query=branch%3Amain) <!--NB: Won't find it if repo is private-->
+[<img alt="ci warnings" src="https://img.shields.io/github/actions/workflow/status/EV-Main/trading_data/warnings.yml?branch=main&style=for-the-badge&style=flat-square&label=warnings&labelColor=d16002" height="20">](https://github.com/EV-Main/trading_data/actions?query=branch%3Amain) <!--NB: Won't find it if repo is private-->
 
 A trading framework whose derived-value DAG **is** a type: a node names its dependencies as types, so the node set, the topological order, every buffer's size, which nodes may go dark and which source lanes are loaded at all are read off that one type and monomorphized into one straight-line sweep — cycles are unrepresentable, and work no output reaches does not exist rather than merely going unused.
 The same graph runs live or over a recorded month; the only seam between the two is where the events come from.
@@ -13,9 +13,9 @@ The same graph runs live or over a recorded month; the only seam between the two
 <!-- TODO!!!: replace with a video walkthrough of the system -->
 ![spl replayed — chart panes left, the graph right](./docs/.readme_assets/assets/overview.jpeg)
 
-`examples/spl`: a whole strategy over 32 days of Bybit TAO-USDT, scrubbed tick by tick in [exec_viz](https://github.com/EV-invest/exec_viz) — every node's standing value at the cursor, and the edges that fed it.
+`examples/spl`: a whole strategy over 32 days of Bybit TAO-USDT, scrubbed tick by tick in [exec_viz](https://github.com/EV-Main/exec_viz) — every node's standing value at the cursor, and the edges that fed it.
 
-🌐 **[Live demo](https://ev-invest.github.io/exec_viz/)** — no setup, runs in the browser. A recorded `examples/spl` run, the still above made scrubbable; `nix run .#spl -- --record demo.tape` is what writes one.
+🌐 **[Live demo](https://EV-Main.github.io/exec_viz/)** — no setup, runs in the browser. A recorded `examples/spl` run, the still above made scrubbable; `nix run .#spl -- --record demo.tape` is what writes one.
 
 ![one element sequence, four groupings of it into ticks](./docs/.readme_assets/assets/fuzz.svg)
 

@@ -4,9 +4,9 @@ The same graph runs live or over a recorded month; the only seam between the two
 <!-- TODO!!!: replace with a video walkthrough of the system -->
 ![spl replayed — chart panes left, the graph right](./assets/overview.jpeg)
 
-`examples/spl`: a whole strategy over 32 days of Bybit TAO-USDT, scrubbed tick by tick in [exec_viz](https://github.com/EV-invest/exec_viz) — every node's standing value at the cursor, and the edges that fed it.
+`examples/spl`: a whole strategy over 32 days of Bybit TAO-USDT, scrubbed tick by tick in [exec_viz](https://github.com/@@OWNER@@/exec_viz) — every node's standing value at the cursor, and the edges that fed it.
 
-🌐 **[Live demo](https://ev-invest.github.io/exec_viz/)** — no setup, runs in the browser. A recorded `examples/spl` run, the still above made scrubbable; `nix run .#spl -- --record demo.tape` is what writes one.
+🌐 **[Live demo](https://@@OWNER@@.github.io/exec_viz/)** — no setup, runs in the browser. A recorded `examples/spl` run, the still above made scrubbable; `nix run .#spl -- --record demo.tape` is what writes one.
 
 ![one element sequence, four groupings of it into ticks](./assets/fuzz.svg)
 

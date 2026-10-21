@@ -19,7 +19,7 @@ does not belong in your crate.
 Every path below is repo-relative. Resolve them against, in order:
 
 1. a local checkout of the workspace — `cargo metadata --format-version 1 | jq -r '.packages[]|select(.name=="trading_data").manifest_path'`, then the directory above `trading_data/`;
-2. `https://github.com/EV-invest/trading_data/blob/main/<path>` (raw: `raw.githubusercontent.com/EV-invest/trading_data/main/<path>`).
+2. `https://github.com/EV-Main/trading_data/blob/main/<path>` (raw: `raw.githubusercontent.com/EV-Main/trading_data/main/<path>`).
 
 | path | what it is | read it |
 |---|---|---|
