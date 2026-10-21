@@ -6,8 +6,8 @@ LL |         env.put(level.slot(Trade::PRICE));
   |                       |
   |                       arguments to this method are incorrect
   |
-  = note: expected struct `trading_data_dag::Field<Level>`
-                found struct `trading_data_dag::Field<Trade>`
+  = note: expected struct `Field<Level>`
+                found struct `Field<Trade>`
 note: method defined here
   --> $DIR/trading_data_dag/src/lib.rs:LL:CC
   |

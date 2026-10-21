@@ -37,13 +37,20 @@ fn base_config(dir: PathBuf, root: &Path) -> ui_test::Config {
 	config.stderr_filter(r"(?m)^ *\d+( *\|)", "LL$1");
 	// rustc spills an over-long type to a side file whose name carries a per-run hash.
 	config.stderr_filter(r"long-type-\d+\.txt", "long-type.txt");
+	config.stderr_filter(r"'[^']*/([^/']+\.long-type\.txt)'", "'$1'"); // lands under whichever target dir the run uses
 	// A const-eval panic is reported against `core`'s own `panic.rs`, which is the toolchain's, not
 	// ours: the sysroot path differs between rustup (`/rustc/<hash>`) and nix, and whether that frame
 	// renders as a quoted source line or a bare note depends on `rust-src` being installed. Collapse
 	// both spellings onto the note, so these snapshots pin our message and not the toolchain layout.
-	config.stderr_filter(r"(?:/rustc/[0-9a-f]+|/nix/store/[^/]+/lib/rustlib/src/rust)/library/", "<sysroot>/library/");
+	config.stderr_filter(r"(?:/rustc/[0-9a-f]+|/\S+/lib/rustlib/src/rust)/library/", "<sysroot>/library/");
 	config.stderr_filter(r"(?m)^LL \| *\$crate::panicking::panic_fmt.*\n", "");
 	config.stderr_filter(r"(?m)^ *\| *\^+ (evaluation of .* failed here)$", "= note: $1");
+	// rustc's own help around an unmet bound rewords between nightlies; the bound and our messages don't.
+	config.stderr_filter(r"is conditionally implemented for", "is implemented for");
+	config.stderr_filter(r"(?m)^.*unsatisfied requirement introduced here.*\n", "");
+	config.stderr_filter(r"(?m)^ *= note: an? \w+ named `[^`]*` exists in another namespace\n", "");
+	config.stderr_filter(r"((?:expected|found) struct `)(?:\w+::)+", "$1");
+	config.stderr_filter(r"(?m)^(note: the above error was encountered while instantiating `fn [^`]*? as \w+)<[^`]*`", "$1<..>`");
 	// Last, so it also squares the line above: rustc indents every gutter decoration to the width of
 	// the widest line number in the snippet, and `LL` has already thrown those away. Two nightlies two
 	// days apart disagreed by one space on one `= note:`, which is a red suite about nothing.
