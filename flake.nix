@@ -169,6 +169,7 @@
 
               cargoLock.lockFile = ./Cargo.lock;
               src = pkgs.lib.cleanSource ./.;
+              RUSTC_WRAPPER = ""; # `.cargo/config.toml`'s sccache isn't in the sandbox
             };
           };
 
