@@ -23,7 +23,7 @@
         github = v_flakes.github {
           inherit pkgs pname rs;
           enable = true;
-          lastSupportedVersion = "nightly-2026-07-14";
+          lastSupportedVersion = "nightly-2026-06-29"; # the dev shell's compiler: the UI snapshots are blessed with it
           jobs.default = true;
           # The film is generated and committed, so nothing else notices when the generator moves
           # under it. Daily rather than per-run: it builds the whole workspace to redraw one SVG.

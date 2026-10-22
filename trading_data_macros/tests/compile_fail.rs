@@ -1,4 +1,8 @@
-use std::path::{Path, PathBuf};
+use std::{
+	fs,
+	path::{Path, PathBuf},
+	process::Command,
+};
 
 use ui_test::{dependencies::DependencyBuilder, spanned::Spanned};
 
@@ -7,15 +11,36 @@ fn main() -> ui_test::color_eyre::Result<()> {
 
 	// Strict suite: every diagnostic is annotated inline (pins exact macro errors + the const
 	// assert messages the macro emits — all stable strings).
-	let strict = base_config(root.join("tests/compile_fail"), root);
+	let mut strict = base_config(root.join("tests/compile_fail"), root);
 	// Cascade suite: a wrong topo order fails the `Pull`/`Has` trait bounds, which the compiler
 	// reports across every downstream site with unstable phrasing. Annotating each is brittle, so
 	// this dir runs with annotations off and pins the full `.stderr` snapshot instead.
 	let mut cascade = base_config(root.join("tests/compile_fail_cascade"), root);
 	cascade.comment_defaults.base().require_annotations = Spanned::dummy(false).into();
 
+	// A `.stderr` is one compiler's rendering of rustc's own snippets, which every nightly is free to
+	// redraw; on any other compiler only the annotations and the failure itself are ours to hold.
+	let blessed_with = root.join("tests/compile_fail.rustc");
+	let rustc = commit_hash(&strict.program.program);
+	if std::env::args().any(|a| a == "--bless") {
+		fs::write(&blessed_with, format!("{rustc}\n"))?;
+	}
+	let blessed = fs::read_to_string(&blessed_with).expect("written by `--bless`");
+	if blessed.trim() != rustc {
+		eprintln!("compile_fail: snapshots were blessed with rustc {}, this is {rustc} — `.stderr` not compared", blessed.trim());
+		strict.output_conflict_handling = ui_test::ignore_output_conflict;
+		cascade.output_conflict_handling = ui_test::ignore_output_conflict;
+	}
+
 	ui_test::run_tests(strict)?;
 	ui_test::run_tests(cascade)
+}
+
+fn commit_hash(rustc: &Path) -> String {
+	let out = Command::new(rustc).arg("-vV").output().expect("the rustc ui_test drives runs");
+	assert!(out.status.success(), "{} -vV failed", rustc.display());
+	let info = String::from_utf8(out.stdout).expect("rustc -vV is utf-8");
+	info.lines().find_map(|l| l.strip_prefix("commit-hash: ")).expect("rustc -vV names its commit").to_owned()
 }
 
 fn base_config(dir: PathBuf, root: &Path) -> ui_test::Config {
