@@ -212,7 +212,7 @@ impl Batch<BookDelta> for BookChunk {
 		self
 	}
 
-	/// A chunk has one meaning, so a shallower read of it is the same read — where a [`Hist`] cuts
+	/// A chunk has one meaning, so a shallower read of it is the same read — where a `Hist` cuts
 	/// to the consumer's reach, the net of a period *is* the period.
 	fn narrow<'t>(view: &'t BookChunk, _: Horizon) -> &'t BookChunk
 	where

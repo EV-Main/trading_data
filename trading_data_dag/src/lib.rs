@@ -177,7 +177,7 @@ impl Horizon {
 
 	/// The wall-clock depth this reach comes to against a producer publishing every `clock` — the
 	/// direction warmup is measured in. What a replay must preload is a *duration*, and `Elems(n)`
-	/// becomes one only once the producer's rate is known, which is what [`Emit::CLOCK`] supplies:
+	/// becomes one only once the producer's rate is known, which is what [`Cell::CLOCK`] supplies:
 	/// with every producer's clock static, a consumer's declared reach resolves to a depth at compile
 	/// time instead of being a hand-picked replay range.
 	///
@@ -402,7 +402,7 @@ pub trait Cell {
 	///
 	/// This is what says whether a tick may be *withheld* from a consumer. A retained dep is there
 	/// again next tick, so skipping one costs nothing; a pass-through dep skipped is a batch nobody
-	/// ever sees again. Hence [`Emitter::opens`]: the engine enforces a declared rate only where it
+	/// ever sees again. Hence `Emitter::opens`: the engine enforces a declared rate only where it
 	/// holds every input the node would have read.
 	const RETAINED: bool = false;
 
@@ -417,7 +417,7 @@ pub trait Cell {
 	/// [`graph!`] check a node's clock against the ones feeding it.
 	///
 	/// Who *enforces* it follows [`RETAINED`](Cell::RETAINED), not the declaration: see
-	/// [`Emitter::opens`].
+	/// `Emitter::opens`.
 	const CLOCK: Option<Timeframe> = None;
 
 	/// Whether a consumer naming this in dep position is *dominated* by it — [`Gating`] alone. A type
@@ -471,7 +471,7 @@ pub trait Flat: Copy {
 	const ABSENTABLE: bool = false;
 	/// Whether this out is a *run* — several elements, of which the flattening is only the last. A
 	/// A level node reading one would be reading how the feed grouped its messages
-	/// (`r[rates.deps.tick-opaque]`), which is why [`env_of`]/[`verdict_env`] const-assert against it.
+	/// (`r[rates.deps.tick-opaque]`), which is why `env_of`/`verdict_env` const-assert against it.
 	const RUN: bool = false;
 	/// Writes all `LEN` slots of `out`; returns fired. `!fired` ⇒ NaN-filled.
 	fn flat(&self, out: &mut [f64]) -> bool;
@@ -1356,7 +1356,7 @@ where
 /// scalar. Earns the [`Pure`] kernel, which is the whole of how it computes: there is no second way
 /// to state the value, so the algebra is load-bearing.
 ///
-/// Its deps are **levels** — [`env_of`] const-asserts it — so the body's env is either wholly there
+/// Its deps are **levels** — `env_of` const-asserts it — so the body's env is either wholly there
 /// or wholly not, and the kernel answers the second case rather than the body. `Out = f64` is
 /// therefore legal only for a node whose deps always stand; anything that can be cold owes a
 /// [`Reading`], which is the same `unflat` one slot wide.
@@ -3122,7 +3122,7 @@ where
 /// un-fold, so it has nothing to trim and can only *tumble* — reset on the absolute period boundary,
 /// floored from the epoch. Both are the same declaration and different windows. What contains it is
 /// that the views are different types, so no consumer can read one as the other.
-/// `Clone` because [`fd_col`] re-owns the whole frame once per dep element — a retention that
+/// `Clone` because `fd_col` re-owns the whole frame once per dep element — a retention that
 /// cannot be copied cannot be differenced.
 pub trait Batch<T>: Clone + Default {
 	type View<'t>: Copy
@@ -3187,7 +3187,7 @@ impl<T: Clone> Clone for Rows<T> {
 	}
 
 	/// The one thing `derive(Clone)` would not have given: its `clone_from` is `*self = clone()`, and
-	/// a batch holding a whole reach is what [`fd_col`] re-clones once per dep element. Only the
+	/// a batch holding a whole reach is what `fd_col` re-clones once per dep element. Only the
 	/// retained window is carried — the dropped prefix is waiting to be reclaimed, not state.
 	fn clone_from(&mut self, src: &Self) {
 		self.buf.clear();
@@ -3998,7 +3998,7 @@ where
 /// out. The frame is keyed on `E` itself — the [`Emitter`] is storage, not a cell — so a dep naming
 /// `E` resolves through the ordinary [`Has`] impl. A dark one needs no [`Dark`] reading: not
 /// emitting *is* the empty run — which is equally the reading of an undemanded one, and of one whose
-/// [`Emit::CLOCK`] has not come round.
+/// [`Cell::CLOCK`] has not come round.
 ///
 /// `ts` is the tick's event time, which is what a clock is read against: a node's rate must be a
 /// statement about the market, and the count of ticks is a statement about the feed's batching.

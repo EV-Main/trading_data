@@ -115,7 +115,7 @@ impl Book {
 	/// hold is free — a level is absolute in `(side, price)`, and the later row wins either way — but
 	/// skipping one is not.
 	///
-	/// Not a [`resync`](Self::resync), though it takes the same checkpoint: this reconstructs the
+	/// Not a `resync`, though it takes the same checkpoint: this reconstructs the
 	/// state we would have held anyway, and `epoch` is a claim about *discontinuity*. A book that
 	/// arrives where it was always going to arrive has not become a different book.
 	pub fn rewind(&mut self, anchor: Option<&BookShape>, rows: &[BookDelta]) {
@@ -141,7 +141,7 @@ impl Book {
 	/// One fold step, the whole of it. Returns whether the book is readable afterwards.
 	///
 	/// One entry point rather than four public verbs — a caller that could `apply` without first
-	/// asking [`Reach`] is a caller that can fold onto stale state.
+	/// asking `Reach` is a caller that can fold onto stale state.
 	pub fn step(&mut self, anchor: Option<&BookShape>, chunk: &BookChunk) -> bool {
 		match self.synced.then(|| self.reach(chunk)) {
 			// the common case, and as cheap as it ever was: awake last tick, nothing skipped.

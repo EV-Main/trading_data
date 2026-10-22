@@ -10,7 +10,7 @@
 //! [`Const`] is the sole `f64 → Expr` door; there is no `Expr → f64 → Expr` escape, so a
 //! `trading_data_dag::Symbolic` body *cannot* compute any other way — the algebra is load-bearing.
 //!
-//! The two planes are one declaration: the [`ops!`] table below emits the marker struct, its
+//! The two planes are one declaration: the `ops!` table below emits the marker struct, its
 //! [`Expr`] impl, the [`Ast`] variant and every mechanical walk over it from one row per operator,
 //! so `Expr::eval` and `Ast::eval` cannot say different things about the same operator. What a row
 //! cannot state — [`Ast::diff`]'s per-operator mathematics and [`Ast::simplify`]'s per-operator
@@ -30,7 +30,7 @@ pub trait Expr: Copy {
 	/// back as absence (`r[impl outs.absence.typed]`). [`Absent`] is the only leaf that sets it; every
 	/// operator derives it, by `|` where absence propagates and by `&` where it is skipped.
 	const MAYBE: bool = false;
-	/// So a kernel holding an opaque `impl Expr` can ask, as it asks [`Slots::len`]: RPITIT leaves
+	/// So a kernel holding an opaque `impl Expr` can ask, as it asks [`Slots::width`]: RPITIT leaves
 	/// `<Body as Expr>::MAYBE` unnameable in a bound at the site that would state it.
 	fn maybe(&self) -> bool {
 		Self::MAYBE
