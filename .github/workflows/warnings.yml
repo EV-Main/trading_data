@@ -43,7 +43,7 @@ jobs:
       uses: actions/download-artifact@v7
       with:
         name: modified-cargo-files
-    - run: rm -f .cargo/config.toml .cargo/config
+    - run: rm -f "$GITHUB_WORKSPACE/.cargo/config.toml" "$GITHUB_WORKSPACE/.cargo/config"
     - run: cargo clippy --tests -- -Dwarnings
     timeout-minutes: 45
   rust-doc:
@@ -61,7 +61,7 @@ jobs:
       with:
         name: modified-cargo-files
     - uses: dtolnay/install@cargo-docs-rs
-    - run: rm -f .cargo/config.toml .cargo/config
+    - run: rm -f "$GITHUB_WORKSPACE/.cargo/config.toml" "$GITHUB_WORKSPACE/.cargo/config"
     - run: "for p in $(cargo metadata --no-deps --format-version 1 | jq -r '.packages[]\
         \ | select([.targets[].kind[]] | any(. == \"lib\" or . == \"proc-macro\"))\
         \ | .name'); do\n  cargo docs-rs -p \"$p\"\ndone\n"
