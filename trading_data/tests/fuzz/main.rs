@@ -6,7 +6,7 @@
 //! things arrive and how they group, and that is the axis below.
 //!
 //! The FRNG, the minimizer, the corpus format and the scan/record/replay loop are
-//! [`v_utils::fuzz`] — shared with `dockviewers_core`, which is where this harness was ported from.
+//! [`v_utils::fuzz`] — shared with `tilers_core`, which is where this harness was ported from.
 //! What is local is the table below: one binary, several targets, each its own generator over the
 //! same buffer. Env-var replay:
 //! `FUZZ_SEED=… FUZZ_SIZE=… FUZZ_TARGET=… cargo t -p trading_data --test fuzz -- --nocapture`

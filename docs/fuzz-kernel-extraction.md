@@ -1,7 +1,7 @@
 # The fuzz kernel, and where it ended up
 
 Landed. `trading_data/tests/fuzz/` was built by porting the deterministic-fuzz kernel from
-`~/s/ev_invest/dockviewers/dockviewers_core/tests/integration/`; both now sit on `v_utils::fuzz`
+`~/s/ev_invest/tilers/tilers_core/tests/integration/`; both now sit on `v_utils::fuzz`
 behind a `fuzz` feature, off by default and a dev-dep on both sides. This records what moved, what
 did not, and why the second answer changed.
 
@@ -24,17 +24,17 @@ copies, on the grounds that a file format and a test UX are *policy* and the two
 already disagreed about both on contact. That reasoning was sound about the disagreement and wrong
 about what it implied.
 
-The disagreement was not two designs. dockviewers wrote `seed size version` and trading_data wrote
-`target seed size version` because dockviewers has one generator and trading_data has ten — the
+The disagreement was not two designs. tilers wrote `seed size version` and trading_data wrote
+`target seed size version` because tilers has one generator and trading_data has ten — the
 second schema is the first with `N = 1` spelled out. Same for the driver: `FUZZ_TARGET`, the
 per-target version and the per-target clean line are all the same code at `N > 1`. Generalizing the
-smaller consumer to the larger one's shape cost dockviewers a nine-line `CORPUS.txt` migration and
+smaller consumer to the larger one's shape cost tilers a nine-line `CORPUS.txt` migration and
 bought a single implementation. There was no policy to publish, only an arity.
 
 Two facts made that migration free, and both were checked before it was made rather than assumed:
 
 - **Both corpora were 100% dead.** Recomputed FNV-1a over the live sources at the time: trading_data
-  had 7 recorded entries and 0 at a current fingerprint, dockviewers 9 and 0. That is the designed
+  had 7 recorded entries and 0 at a current fingerprint, tilers 9 and 0. That is the designed
   behaviour of a deliberately over-sensitive fingerprint, not a defect — and it meant re-spelling
   every line cost nothing that was still being bought.
 - **`regressions` legitimately reports 0 live in both repos, before and after.** A migration that
@@ -55,26 +55,26 @@ and `replay` are free fns taking `&Target` and copy the pointer out (`let run = 
 boundary, so `Target` can gain fields without the closure stopping to compile.
 
 `run` takes `(seed, size, verbose)` rather than `&mut Frng`, because `minimize` already worked on
-`(seed, size)` — which means `Suite` needs no knowledge of `Frng` at all, and dockviewers' `sim::run`
+`(seed, size)` — which means `Suite` needs no knowledge of `Frng` at all, and tilers' `sim::run`
 kept its signature unchanged.
 
 ## What deliberately did not move
 
 **The two films.** `trading_data/tests/fuzz/film.rs` (293) and
-`dockviewers_core/examples/fuzz_film.rs` (542) share about 32 lines of 835, and the shared pieces
+`tilers_core/examples/fuzz_film.rs` (542) share about 32 lines of 835, and the shared pieces
 disagree *semantically*: the coverage tally counts per seed here and per input event there, and
 truncation is asserted against here and silently accepted there. Extracting 32 lines that mean
 different things on the two sides would be publishing a bug.
 
 What is shared instead is the *automation*: `nix run .#film` in both repos, and a v_flakes
 `asset-gate` job that regenerates the asset and diffs it against the committed one, guarded by a
-cache key bucketed on `now / 86400`. That found something on the first run — dockviewers' committed
+cache key bucketed on `now / 86400`. That found something on the first run — tilers' committed
 SVG had been stale since the title-bar-height commit, and nothing had said so.
 
 ## Cost
 
 `v_utils` has 17 unconditional dependencies that `default-features = false` does not shed.
-dockviewers_core's dev-dep tree was `{serde, serde_json, clap}`; adding `v_utils` multiplies it.
+tilers_core's dev-dep tree was `{serde, serde_json, clap}`; adding `v_utils` multiplies it.
 Dev-deps only — published consumers and the wasm path are unaffected, and the `fuzz` feature is
 declared on a separate dev-dep entry so that under `resolver = "3"` it stays out of each facade's
 published feature set.

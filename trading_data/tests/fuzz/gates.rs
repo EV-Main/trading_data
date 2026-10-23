@@ -138,7 +138,7 @@ pub fn run_rewarm(f: &mut Frng, verbose: bool) -> Result<(), String> {
 /// sampled — the random part is the data and the tick schedule.
 ///
 /// `Under::live` is private and stays private. Liveness is read off the `●`/`░` markers of the
-/// `Under` Display, which is the same discipline dockviewers' oracle keeps when it parses rects out
+/// `Under` Display, which is the same discipline tilers' oracle keeps when it parses rects out
 /// of inline CSS rather than exposing a view-model internal.
 pub fn run_shape_sweep(f: &mut Frng, verbose: bool) -> Result<(), String> {
 	let gates: Vec<String> = G::SHAPE.gates().collect();
